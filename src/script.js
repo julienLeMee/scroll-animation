@@ -1,6 +1,7 @@
 import './style.css'
 import * as THREE from 'three'
 import * as dat from 'lil-gui'
+import gsap from 'gsap'
 
 /**
  * Debug
@@ -34,6 +35,9 @@ const scene = new THREE.Scene()
 const textureLoader = new THREE.TextureLoader()
 const gradientTexture = textureLoader.load('/textures/gradients/3.jpg')
 gradientTexture.magFilter = THREE.NearestFilter
+
+const alphaMap = textureLoader.load('/textures/alphamap.png') // charge la texture
+
 // Materials
 const material = new THREE.MeshToonMaterial({
     color: parameters.materialColor,
@@ -88,7 +92,9 @@ particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 
 const particlesMaterial = new THREE.PointsMaterial({
   color: parameters.materialColor,
   sizeAttenuation: true,
-  size: 0.03
+  size: 0.03,
+  alphaMap: alphaMap,
+  blending: THREE.AdditiveBlending
 })
 
 // Points
@@ -151,10 +157,29 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  * Scroll
  */
 let scrollY = window.scrollY
+let currentSection = 0
 
 window.addEventListener('scroll', () =>
 {
     scrollY = window.scrollY
+
+    const newSection = Math.round(scrollY / sizes.height)
+
+    if (newSection !== currentSection)
+    {
+        currentSection = newSection
+
+        gsap.to(
+          sectionMeshes[currentSection].rotation,
+          {
+              duration: 1.5,
+              ease: 'power2.inOut',
+              x: '+=6',
+              y: '+=3',
+              z: '+=1.5'
+          }
+        )
+    }
 })
 
 /**
@@ -193,8 +218,8 @@ const tick = () =>
     // Animate meshes
     for (const mesh of sectionMeshes)
     {
-        mesh.rotation.x = elapsedTime * 0.1
-        mesh.rotation.y = elapsedTime * 0.12
+        mesh.rotation.x += deltaTime * 0.1 // permet de faire tourner les objets en x, deltaTime permet de faire tourner les objets à la même vitesse sur tous les ordinateurs
+        mesh.rotation.y += deltaTime * 0.12
     }
 
     // Render
