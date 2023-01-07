@@ -16,6 +16,15 @@ html {
     outline: none;
 }
 
+a {
+  color: #ffeded;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #ffeded;
+  text-decoration: underline;
+}
 
 .section
 {
